@@ -47,7 +47,7 @@ grouped_mean_imputation <- function(df, group_var, impute_var){
     mutate(
      !! dummy_name := case_when(is.na(!! values_q) ~ 1,
                                 T ~ 0), 
-     !! varname := case_when(is.na(!! values_q) ~ fixed_mean(gov_debt),
+     !! varname := case_when(is.na(!! values_q) ~ fixed_mean(!! values_q),
                              T ~ !! values_q)
     ) 
 }
