@@ -1,4 +1,30 @@
 
+
+#------------------------ LØSNING -----------------------------------
+
+rolling_deviation = function(df, group_var, var, months){
+  
+  groupvar_q <- enquo(group_var)
+  variable_q <- enquo(var)
+  varname <- quo_name(variable_q)
+  timename <- toString(months)
+  dummy_name <- paste0("t_",timename, "_", varname)
+  
+  
+  df %>% 
+    group_by(!! groupvar_q) %>% 
+    mutate(
+      !! dummy_name := !! variable_q -RcppRoll::roll_mean(lag(!! variable_q), months, align = "right", fill = NA)
+    )
+}
+
+b <-  rolling_deviation(df, p4n, q1cnt, 6)
+
+
+
+
+# ----------------------------- PROBLEM --------------------------
+
 # Grouped timedependent deviation from mean
 
 # Jeg vil gerne lave en funtion, der ser på hvordan at en observations værdi afviger
@@ -20,11 +46,14 @@ library(tidyverse)
 library(lubridate)
 
 # Load data
+setwd("C:/Users/Frederik/Documents/GitHub/Kristian_h-lper_Frede-3")
 df <- readRDS(file = "data.rds")
 
 
 
 df$date <- ymd(df$date)
+df$date <- as.POSIXlt(df$date, format = "%Y-%m-%d")
+df$date <- as.Date(df$date, format = "%Y-%m-%d")
 
 
 
@@ -56,16 +85,36 @@ grouped_time_mean = function(df,group_var, var, time_in_month){
 
 test <- df %>% 
   group_by(p4n) %>% 
-  mutate(time2 = date %m-% months(6)) # virker - so far so good
+  mutate(time2 =as.Date(date %m-% months(6),format = "%Y-%m-%d")) # virker - so far so good
 
 
 test <- df %>% 
   group_by(p4n) %>% 
-  mutate(time2 = date %m-% months(6),
+  mutate(time2 =as.Date(date %m-% months(6),format = "%Y-%m-%d"),
          t6_q1cnt = q1cnt - mean(q1cnt[which(df$date %within% interval(date,time))])) #Evaluation error: do not know how to convert 'x' to class <U+0093>POSIXct<U+0094>.
 
 
 
+
+#--------------------------------------------
+
+rolling_deviation = function(df, group_var, var, months){
+  
+  groupvar_q <- enquo(group_var)
+  variable_q <- enquo(var)
+  varname <- quo_name(variable_q)
+  timename <- toString(months)
+  dummy_name <- paste0("t_",timename, "_", varname)
+  
+  
+  df %>% 
+    group_by(!! groupvar_q) %>% 
+    mutate(
+      !! dummy_name := !! variable_q -RcppRoll::roll_mean(lag(!! variable_q), months, align = "right", fill = NA)
+    )
+}
+
+b <-  rolling_deviation(df, p4n, q1cnt, 6)
 
 
 
