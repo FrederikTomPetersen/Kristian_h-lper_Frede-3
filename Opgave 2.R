@@ -100,7 +100,8 @@ grouped_time_mean <- function(df, group_vars, var, days=30*6) {
   # 2) Rolling mean på relevant variable + sum af tællevariable (lag for ikke at få periode t med i gns)
   test2 <- test %>%
     mutate(!!paste0("mean_last_6_mo_", quo_name(var)) := RcppRoll::roll_mean(lag(!!var), days, na.rm = TRUE, align = "right", fill = NA),
-           nobs_last_6_mo = RcppRoll::roll_sum(lag(ones), days, na.rm = TRUE, align = "right", fill = NA)
+           nobs_last_6_mo = RcppRoll::roll_sum(lag(ones), days, na.rm = TRUE, align = "right", fill = NA),
+           !!paste0("deviation_last_6_mo_", quo_name(var)) := !!var - !!rlang::sym(paste0("mean_last_6_mo_", quo_name(var)))
     )
 
   # 3) Fjern konstruerede rækker igen
