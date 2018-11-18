@@ -26,6 +26,8 @@ df <- readRDS(file = "data.rds")
 
 df$date <- ymd(df$date)
 
+
+
 grouped_time_mean = function(df,group_var, var, time_in_month){
   
   #df <- Dataset
@@ -43,10 +45,26 @@ grouped_time_mean = function(df,group_var, var, time_in_month){
     group_by(!! groupvar_q) %>% 
     mutate(
       time2 = df$date %m-% months(time_in_month),
-      !! dummy_name := !! variable_q - mean(!! variable_q[which(df$date %within% interval(df$date,df$time2))])) %>% 
-    select(-"time2")
+       !! dummy_name := !! variable_q - mean(!! variable_q[which(df$date %within% interval(df$date,df$time2))])) %>% 
+     select(-"time2")
   return(df)
 }
 
-#test
-a <-  grouped_time_mean(df, p4n, q1cnt, 6)  
+# ------------------------------------------------------------------------------
+# SOLUTION (wrap i funktion hvis du skal bruge det 1000 gange)
+
+# 1) Complete cases på dato
+test <- df %>%
+  mutate(ones = 1) %>%  # tælle-variable
+  group_by(p4n) %>%    
+  complete(date = seq.Date(min(date), max(date), by="day"))
+
+# 2) Rolling mean på relevant variable + sum af tællevariable (lag for ikke at få periode t med i gns)
+test2 <- test %>%
+  mutate(mean_last_6_mo = RcppRoll::roll_mean(lag(q1cnt), 30*6, na.rm = TRUE, align = "right", fill = NA),
+         nobs_last_6_mo = RcppRoll::roll_sum(lag(ones), 30*6, na.rm = TRUE, align = "right", fill = NA)
+         )
+
+# 3) Fjern konstruerede rækker igen
+testfinal <- test2 %>%
+  filter(!is.na(year))
