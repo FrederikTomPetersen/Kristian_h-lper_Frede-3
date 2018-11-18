@@ -11,10 +11,8 @@
 #     4) Tidsperioden, for hvilket gennemsnittet skal udregnes. 
 
 
-
-
 # I mit forsøg nedenfor, løber jeg ind i fejlen  "Error in .... object 'time2' not found"
-# jeg forestilelr mig at det er mit mutate, der ikke spiller, men jeg kan ikke lige se, 
+# jeg forestiller mig at det er mit mutate, der ikke spiller, men jeg kan ikke lige se, 
 # hvorfor det ikke skulle gøre det
 
 
@@ -25,7 +23,6 @@ library(lubridate)
 
 # Load data
 df <- readRDS(file = "data.rds")
-
 
 grouped_time_mean = function(df,group_var, var, time_in_month){
   
@@ -40,14 +37,14 @@ grouped_time_mean = function(df,group_var, var, time_in_month){
   timename <- toString(time_in_month)
   dummy_name <- paste0("t_",timename, "_", varname)
   
-  
   df %>% 
     group_by(!! groupvar_q) %>% 
     mutate(
-      time2 = date %m-% months(time_in_month),
-      !! dummy_name := variable_q - mean(!! variable_q[which(date %within% interval(date,time2))]) %>% 
-        select(-"time2")
-    )
+      time2 = df$date %m-% months(time_in_month),
+      !! dummy_name := variable_q - mean(!! variable_q[which(df$date %within% interval(df$date,df$time2))])) %>% 
+    select(-"time2")
+  return(df)
 }
 
-a <-  grouped_time_mean(Dataset, p4n, q1cnt, 6)  
+#test
+a <-  grouped_time_mean(df, p4n, q1cnt, 6)  
