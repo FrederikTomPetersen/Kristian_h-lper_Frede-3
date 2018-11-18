@@ -89,3 +89,23 @@ test2 <- test %>%
 # 3) Fjern konstruerede rækker igen
 testfinal <- test2 %>%
   filter(!is.na(year))
+
+
+grouped_time_mean <- function(df, group_vars, var, days=30*6) {
+  test <- df %>%
+    mutate(ones = 1) %>%  # tælle-variable
+    group_by(!!!group_vars) %>%    
+    complete(date = seq.Date(min(date), max(date), by="day"))
+
+  # 2) Rolling mean på relevant variable + sum af tællevariable (lag for ikke at få periode t med i gns)
+  test2 <- test %>%
+    mutate(!!paste0("mean_last_6_mo_", quo_name(var)) := RcppRoll::roll_mean(lag(!!var), days, na.rm = TRUE, align = "right", fill = NA),
+           nobs_last_6_mo = RcppRoll::roll_sum(lag(ones), days, na.rm = TRUE, align = "right", fill = NA)
+    )
+
+  # 3) Fjern konstruerede rækker igen
+  test2 %>%
+    filter(!is.na(year))
+}
+
+grouped_time_mean(df, vars(p4n), quo(q1cnt))
