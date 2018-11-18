@@ -16,8 +16,6 @@
 # hvorfor det ikke skulle gøre det
 
 
-
-
 library(tidyverse)
 library(lubridate)
 
@@ -41,7 +39,7 @@ grouped_time_mean = function(df,group_var, var, time_in_month){
     group_by(!! groupvar_q) %>% 
     mutate(
       time2 = df$date %m-% months(time_in_month),
-      !! dummy_name := variable_q - mean(!! variable_q[which(df$date %within% interval(df$date,df$time2))])) %>% 
+      !! dummy_name := !! variable_q - mean(!! variable_q[which(df$date %within% interval(df$date,df$time2))])) %>% 
     select(-"time2")
   return(df)
 }
