@@ -22,6 +22,10 @@ library(lubridate)
 # Load data
 df <- readRDS(file = "data.rds")
 
+
+
+df$date <- ymd(df$date)
+
 grouped_time_mean = function(df,group_var, var, time_in_month){
   
   #df <- Dataset
