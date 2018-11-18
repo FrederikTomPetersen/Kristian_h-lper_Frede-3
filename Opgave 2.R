@@ -50,21 +50,42 @@ grouped_time_mean = function(df,group_var, var, time_in_month){
   return(df)
 }
 
+
+#-------------------------------------------------
+#HÃ¥ndholdt test
+
+test <- df %>% 
+  group_by(p4n) %>% 
+  mutate(time2 = date %m-% months(6)) # virker - so far so good
+
+
+test <- df %>% 
+  group_by(p4n) %>% 
+  mutate(time2 = date %m-% months(6),
+         t6_q1cnt = q1cnt - mean(q1cnt[which(df$date %within% interval(date,time))])) #Evaluation error: do not know how to convert 'x' to class <U+0093>POSIXct<U+0094>.
+
+
+
+
+
+
+
 # ------------------------------------------------------------------------------
+# Kristian proof of concept 
 # SOLUTION (wrap i funktion hvis du skal bruge det 1000 gange)
 
-# 1) Complete cases på dato
+# 1) Complete cases pÃ¥ dato
 test <- df %>%
-  mutate(ones = 1) %>%  # tælle-variable
+  mutate(ones = 1) %>%  # tÃ¦lle-variable
   group_by(p4n) %>%    
   complete(date = seq.Date(min(date), max(date), by="day"))
 
-# 2) Rolling mean på relevant variable + sum af tællevariable (lag for ikke at få periode t med i gns)
+# 2) Rolling mean pÃ¥ relevant variable + sum af tÃ¦llevariable (lag for ikke at fÃ¥ periode t med i gns)
 test2 <- test %>%
   mutate(mean_last_6_mo = RcppRoll::roll_mean(lag(q1cnt), 30*6, na.rm = TRUE, align = "right", fill = NA),
          nobs_last_6_mo = RcppRoll::roll_sum(lag(ones), 30*6, na.rm = TRUE, align = "right", fill = NA)
          )
 
-# 3) Fjern konstruerede rækker igen
+# 3) Fjern konstruerede rÃ¦kker igen
 testfinal <- test2 %>%
   filter(!is.na(year))
