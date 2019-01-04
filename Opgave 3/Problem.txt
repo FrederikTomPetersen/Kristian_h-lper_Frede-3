@@ -1,0 +1,8 @@
+
+
+Jeg prøver at lave et meget simpelt scrape fra airbnb, hvor jeg i sidste ende gerne vil have udledt en liste med links til "boligannoncer", der sidenhen skal scrapes. 
+Jeg kan bare ikke få det til at fungere. 
+
+Jeg har prøvet at køre min fremgangsmåde på googlenews, hvor det ser ud til at virke upåklageligt. 
+
+Kan I to kloge hoveder lure, hvad der er galt? 
